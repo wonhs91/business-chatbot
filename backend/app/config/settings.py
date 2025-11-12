@@ -1,6 +1,6 @@
 from functools import lru_cache
 from pydantic import AnyHttpUrl, Field, SecretStr
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -12,6 +12,13 @@ class Settings(BaseSettings):
     cors_origins: list[AnyHttpUrl] = Field(
         default=["http://localhost:3000"],
         env="CORS_ORIGINS",
+    )
+    
+    model_config = SettingsConfigDict(
+        env_file='.env', 
+        case_sensitive=False,
+        env_file_encoding = "utf-8",
+        extra="allow"
     )
 
     # LLM configuration
@@ -66,11 +73,6 @@ class Settings(BaseSettings):
         default=None,
         env="LANGSMITH_PROJECT",
     )
-
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        case_sensitive = False
 
 
 @lru_cache

@@ -22,4 +22,5 @@ app/services/__init__.py
 app/services/discord.py
 app/services/lead_tracker.py
 app/services/scheduling.py
+app/services/session_memory.py
 tests/test_health.py

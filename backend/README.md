@@ -23,3 +23,12 @@ Before running, create a `.env` file (see `app/config/settings.py`) with credent
 - Vector store (e.g., Qdrant URL and API key)
 - Discord webhook URL
 - Scheduling provider (Calendly or Google Calendar)
+- Optional: LangSmith tracing variables (`LANGSMITH_*`)
+
+### Conversation Memory
+
+The agent uses LangChain's `ChatOpenAI` in stateless mode and layers a server-side
+session store (`SessionMemory`) that persists recent chat messages per visitor.
+Each request retrieves prior messages, appends the new user prompt, invokes the
+model, and updates the history. Swap the in-memory store for Redis or another
+shared cache in production to support multi-instance scaling.

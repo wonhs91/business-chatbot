@@ -71,10 +71,13 @@ The build command emits `dist/index.js` exposing `window.BusinessChatWidget.init
 - **Docs Refresh**: Automate ingestion via GitHub Actions or scheduled job to keep embeddings current.
 - **Monitoring**: Enable structured logging (Loguru is configured) and add APM if needed.
 - **Security**: Lock down the API with rate limiting / origin checking, and consider signed session tokens for production.
+- **Conversation Memory**: The agent uses LangChain's `ChatOpenAI` with an
+  application-managed history cache (`SessionMemory`). Prior messages are stored
+  per session and replayed on each turn. Replace the in-memory store with Redis or
+  a database for multi-instance deployments.
 
 ## 4. Next Steps
 
 - Implement persistent session storage (Redis/Postgres) for multi-device continuity.
 - Add analytics instrumentation for widget interactions.
 - Expand scheduling integration (two-way availability lookup, ICS attachments).
-

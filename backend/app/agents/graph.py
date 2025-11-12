@@ -13,6 +13,7 @@ from app.config.settings import get_settings
 from app.models.chat import AgentResponse, ChatMessage, LeadCapture, MeetingProposal
 from app.retrieval.service import RetrievalService
 from app.services.discord import DiscordNotifier
+from app.services.session_memory import SessionMemory
 from app.services.scheduling import SchedulingService
 
 
@@ -33,6 +34,7 @@ class AgentOrchestrator:
         retrieval: RetrievalService | None = None,
         scheduling: SchedulingService | None = None,
         notifier: DiscordNotifier | None = None,
+        session_memory: SessionMemory | None = None,
     ) -> None:
         self._settings = get_settings()
         if not self._settings.openai_api_key:
@@ -42,12 +44,12 @@ class AgentOrchestrator:
             temperature=0.2,
             model=self._settings.openai_model,
             api_key=self._settings.openai_api_key.get_secret_value(),
-            use_responses_api=True
         )
         self._decision_llm = self._llm.with_structured_output(DecisionPayload)
         self._retrieval = retrieval or RetrievalService()
         self._scheduling = scheduling or SchedulingService()
         self._notifier = notifier or DiscordNotifier()
+        self._session_memory = session_memory or SessionMemory()
         self._graph = self._build_graph()
 
     def _build_graph(self):
@@ -201,9 +203,15 @@ class AgentOrchestrator:
 
     async def run(self, session_id: str, messages: list[ChatMessage]) -> AgentResponse:
         """Execute the graph for a conversation turn."""
+        existing_history = self._session_memory.get_history(session_id)
+        combined_messages = [
+            *(message.dict() for message in existing_history),
+            *(message.dict() for message in messages),
+        ]
+
         state: AgentState = {
             "session_id": session_id,
-            "messages": [message.dict() for message in messages],
+            "messages": combined_messages,
             "lead_captured": False,
             "meeting_scheduled": False,
         }
@@ -212,9 +220,11 @@ class AgentOrchestrator:
             ChatMessage(**message) for message in result_state["messages"]
         ]
 
+        self._session_memory.set_history(session_id, response_messages)
+
         return AgentResponse(
             session_id=session_id,
-            messages=response_messages,
+            messages=[response_messages[-1]],
             lead_captured=result_state.get("lead_captured", False),
             meeting_scheduled=result_state.get("meeting_scheduled", False),
             suggested_slots=(

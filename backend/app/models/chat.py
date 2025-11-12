@@ -9,7 +9,7 @@ class ChatMessage(BaseModel):
 
     role: Literal["user", "assistant", "system"] = Field(description="Message author.")
     content: str = Field(description="Text content of the message.")
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    # timestamp: datetime = Field(default_factory=datetime.utcnow)
 
 
 class ChatTurn(BaseModel):
@@ -17,8 +17,8 @@ class ChatTurn(BaseModel):
 
     session_id: str
     message: ChatMessage
-    history: list[ChatMessage] = Field(default_factory=list)
-    metadata: dict[str, Any] = Field(default_factory=dict)
+    # history: list[ChatMessage] = Field(default_factory=list)
+    # metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 class AgentResponse(BaseModel):

@@ -26,14 +26,13 @@ class Settings(BaseSettings):
     openai_model: str = Field(default="gpt-4o-mini", env="OPENAI_MODEL")
 
     # Vector store configuration
-    vector_store_url: AnyHttpUrl | None = Field(default=None, env="VECTOR_STORE_URL")
-    vector_store_api_key: SecretStr | None = Field(
-        default=None,
-        env="VECTOR_STORE_API_KEY",
+    chroma_persist_directory: str | None = Field(
+        default="./data/chroma",
+        env="CHROMA_PERSIST_DIRECTORY",
     )
-    vector_store_collection: str = Field(
+    chroma_collection_name: str = Field(
         default="business_docs",
-        env="VECTOR_STORE_COLLECTION",
+        env="CHROMA_COLLECTION_NAME",
     )
 
     # Discord integration

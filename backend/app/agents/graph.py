@@ -16,6 +16,7 @@ from app.services.discord import DiscordNotifier
 from app.services.session_memory import SessionMemory
 from app.services.scheduling import SchedulingService
 
+import time
 
 class DecisionPayload(BaseModel):
     """Structured output returned from the LLM for each turn."""
@@ -73,6 +74,8 @@ class AgentOrchestrator:
         return builder.compile()
 
     async def _respond(self, state: AgentState) -> AgentState:
+        start_time = time.time()
+        
         """Call the LLM with retrieval context to craft the next reply."""
         history = state.get("messages", [])
         if not history:
@@ -91,7 +94,7 @@ class AgentOrchestrator:
         system_prompt = (
             "You are a helpful onboarding assistant for our company website. "
             "Keep responses concise, friendly, and informative. "
-            "Always offer value before requesting contact information. "
+            "Try to request contact information. "
             "If the visitor asks about our services, use the provided context snippets. "
             "Politely ask for contact details when appropriate and confirm the best meeting time."
         )
@@ -110,8 +113,11 @@ class AgentOrchestrator:
                 )
             ),
         ]
-
+        building_request_end_time = time.time()
+        print("Query time: {}", building_request_end_time - start_time)
         decision = await self._decision_llm.ainvoke(structured_request)
+        
+        post_process_start_time = time.time()
         logger.debug("Decision payload: {}", decision.dict())
 
         state["messages"] = history + [
@@ -126,6 +132,9 @@ class AgentOrchestrator:
         if decision.meeting:
             state["meeting_details"] = decision.meeting.dict()
         state["next_action"] = decision.next_action
+        
+        post_process_end_time = time.time()
+        print("Post-process time: {}", post_process_end_time - post_process_start_time)
         return state
 
     async def _capture_lead(self, state: AgentState) -> AgentState:

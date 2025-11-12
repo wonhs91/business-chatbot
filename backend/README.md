@@ -20,7 +20,7 @@ uvicorn app.main:app --reload
 Before running, create a `.env` file (see `app/config/settings.py`) with credentials for:
 
 - OpenAI (or alternative LLM provider)
-- Vector store (e.g., Qdrant URL and API key)
+- Vector store settings (`CHROMA_PERSIST_DIRECTORY`, `CHROMA_COLLECTION_NAME`)
 - Discord webhook URL
 - Scheduling provider (Calendly or Google Calendar)
 - Optional: LangSmith tracing variables (`LANGSMITH_*`)

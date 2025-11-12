@@ -15,7 +15,7 @@ pip install -e .
 Copy `.env.example` to `.env` and update credentials:
 
 - `OPENAI_API_KEY` and `OPENAI_MODEL`
-- `VECTOR_STORE_*` for Qdrant (or swap to another vector DB)
+- `CHROMA_PERSIST_DIRECTORY` (optional; omit for in-memory) and `CHROMA_COLLECTION_NAME`
 - `DISCORD_WEBHOOK_URL` for notifications
 - `CALENDLY_*` and `FALLBACK_MEETING_LINK`
 - `CORS_ORIGINS` to include your WordPress domain
@@ -67,7 +67,7 @@ The build command emits `dist/index.js` exposing `window.BusinessChatWidget.init
 ## 3. Deployment Notes
 
 - **Backend**: Deploy FastAPI behind HTTPS (e.g., AWS ECS/Fargate, Azure App Service, Vercel serverless) with environment variables mirrored from `.env`.
-- **Vector Store**: Managed Qdrant/Pinecone or self-hosted instance reachable by the backend.
+- **Vector Store**: Chroma persistence directory (default `./data/chroma`) must be writable. In production, point `CHROMA_PERSIST_DIRECTORY` to shared storage or switch to a managed vector store if needed.
 - **Docs Refresh**: Automate ingestion via GitHub Actions or scheduled job to keep embeddings current.
 - **Monitoring**: Enable structured logging (Loguru is configured) and add APM if needed.
 - **Security**: Lock down the API with rate limiting / origin checking, and consider signed session tokens for production.

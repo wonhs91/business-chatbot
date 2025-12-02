@@ -25,3 +25,5 @@ async def chat(turn: ChatTurn) -> AgentResponse:
         raise HTTPException(status_code=400, detail="Message content required.")
 
     return await get_agent().run(session_id=turn.session_id, messages=[turn.message])
+
+
